@@ -19,7 +19,7 @@ void scanCallback(const sensor_msgs::LaserScan::ConstPtr& scan)
         //float degree = RAD2DEG(scan->angle_min + scan->angle_increment * i);
         //ROS_INFO(": [%f, %f]", degree, scan->ranges[i]);
     }
-    ROS_INFO("Shortest distance: %f | angle: %f",minDist,minAngle)
+    ROS_INFO("Shortest distance: %f | angle: %f",minDist,minAngle);
 
 }
 
