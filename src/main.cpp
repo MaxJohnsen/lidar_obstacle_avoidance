@@ -5,18 +5,19 @@
 #include "Measurement.h"
 
 const float distanceLimitLower = 0.4;
-const float distanceLimitUpper = 1;
+const float distanceLimitUpper = 1.5;
 const int obstacleHoleMargin = 5;
 const int standardPitch = 1500;
 const int standardRoll = 1500;
-const int maxPitchChange = 300;
-const int maxRollChange = 300;
+const int maxPitchChange = 500;
+const int maxRollChange = 500;
 const int minPitchChange = 50;
 const int minRollChange = 50;
 
 class ObstacleAvoider {
 private:
 float limitLower;
+bool activated;
 ros::Subscriber sub;
 Measurement data[500];
 ros::Publisher pub_rc;
@@ -33,7 +34,7 @@ ObstacleAvoider::ObstacleAvoider(){
         ros::NodeHandle n;
         sub = n.subscribe<sensor_msgs::LaserScan>("/scan", 1, &ObstacleAvoider::scanCallback, this);
         pub_rc= n.advertise<mavros_msgs::OverrideRCIn>("/mavros/rc/override", 1);
-
+        activated = false;
 
 }
 
@@ -128,20 +129,25 @@ void ObstacleAvoider::scanCallback(const sensor_msgs::LaserScan::ConstPtr& scan)
         if(pitch<minPitchChange) pitch=0;
         //ROS_INFO("Min distance: %f, Angle: %f", closest, angle);
 
-        if(roll>0 || pitch > 0) {
 
-                mavros_msgs::OverrideRCIn override_RC;
-                for (int i = 0; i < 8; i++) {
-                        override_RC.channels[i] = 0; //65535;
-                }
+        mavros_msgs::OverrideRCIn override_RC;
+        for (int i = 0; i < 8; i++) {
+                override_RC.channels[i] = 0;                 //65535;
+        }
+
+        if(roll>0 || pitch > 0) {
 
                 override_RC.channels[0]= standardRoll+roll;
                 override_RC.channels[1]= standardPitch+pitch;
                 ROS_WARN("Publishing Overwriting Message %i, %i",override_RC.channels[0],override_RC.channels[1]);
 
-
+                this.activated = true;
                 pub_rc.publish(override_RC);
+        } else if(this.activated) {
+                pub_rc.publish(override_RC);
+                this.activated=false;
         }
+
 
 
 }
