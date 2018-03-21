@@ -125,8 +125,8 @@ void ObstacleAvoider::scanCallback(const sensor_msgs::LaserScan::ConstPtr& scan)
         float roll = maxRoll+minRoll;
         float pitch = maxPitch+minPitch;
 
-        if(roll<minRollChange) roll=0;
-        if(pitch<minPitchChange) pitch=0;
+        if(fabs(roll)<minRollChange) roll=0;
+        if(fabs(pitch)<minPitchChange) pitch=0;
         //ROS_INFO("Min distance: %f, Angle: %f", closest, angle);
 
 
@@ -141,11 +141,11 @@ void ObstacleAvoider::scanCallback(const sensor_msgs::LaserScan::ConstPtr& scan)
                 override_RC.channels[1]= standardPitch+pitch;
                 ROS_WARN("Publishing Overwriting Message %i, %i",override_RC.channels[0],override_RC.channels[1]);
 
-                this.activated = true;
+                activated = true;
                 pub_rc.publish(override_RC);
-        } else if(this.activated) {
+        } else if(activated) {
                 pub_rc.publish(override_RC);
-                this.activated=false;
+                activated=false;
         }
 
 
