@@ -28,7 +28,7 @@ void scanCallback(const sensor_msgs::LaserScan::ConstPtr& scan);
 };
 
 ObstacleAvoider::ObstacleAvoider(){
-        ROS_INFO("Version 1.0");
+        ROS_INFO("Version 1.1");
         limitLower = sin(M_PI/4) * distanceLimitLower;
 
         ros::NodeHandle n;
@@ -135,7 +135,7 @@ void ObstacleAvoider::scanCallback(const sensor_msgs::LaserScan::ConstPtr& scan)
                 override_RC.channels[i] = 0;                 //65535;
         }
 
-        if(roll>0 || pitch > 0) {
+        if(fabs(roll)>0 || fabs(pitch) > 0) {
 
                 override_RC.channels[0]= standardRoll+roll;
                 override_RC.channels[1]= standardPitch+pitch;
